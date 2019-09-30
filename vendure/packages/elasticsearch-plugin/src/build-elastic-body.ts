@@ -1,0 +1,125 @@
+import { PriceRange, SortOrder } from '@vendure/common/lib/generated-types';
+import { DeepRequired } from '@vendure/core';
+
+import { SearchConfig } from './options';
+import { ElasticSearchInput, SearchRequestBody } from './types';
+
+/**
+ * Given a SearchInput object, returns the corresponding Elasticsearch body.
+ */
+export function buildElasticBody(
+    input: ElasticSearchInput,
+    searchConfig: DeepRequired<SearchConfig>,
+    enabledOnly: boolean = false,
+): SearchRequestBody {
+    const {
+        term,
+        facetValueIds,
+        collectionId,
+        groupByProduct,
+        skip,
+        take,
+        sort,
+        priceRangeWithTax,
+        priceRange,
+    } = input;
+    const query: any = {
+        bool: {},
+    };
+    if (term) {
+        query.bool.must = [
+            {
+                multi_match: {
+                    query: term,
+                    type: searchConfig.multiMatchType,
+                    fields: [
+                        `productName^${searchConfig.boostFields.productName}`,
+                        `productVariantName^${searchConfig.boostFields.productVariantName}`,
+                        `description^${searchConfig.boostFields.description}`,
+                        `sku^${searchConfig.boostFields.sku}`,
+                    ],
+                },
+            },
+        ];
+    }
+    if (facetValueIds && facetValueIds.length) {
+        ensureBoolFilterExists(query);
+        query.bool.filter = query.bool.filter.concat(
+            facetValueIds.map(id => ({ term: { facetValueIds: id } })),
+        );
+    }
+    if (collectionId) {
+        ensureBoolFilterExists(query);
+        query.bool.filter.push({ term: { collectionIds: collectionId } });
+    }
+    if (enabledOnly) {
+        ensureBoolFilterExists(query);
+        query.bool.filter.push({ term: { enabled: true } });
+    }
+    if (priceRange) {
+        ensureBoolFilterExists(query);
+        query.bool.filter = query.bool.filter.concat(createPriceFilters(priceRange, false, !!groupByProduct));
+    }
+    if (priceRangeWithTax) {
+        ensureBoolFilterExists(query);
+        query.bool.filter = query.bool.filter.concat(
+            createPriceFilters(priceRangeWithTax, true, !!groupByProduct),
+        );
+    }
+
+    const sortArray = [];
+    if (sort) {
+        if (sort.name) {
+            sortArray.push({ productName: { order: sort.name === SortOrder.ASC ? 'asc' : 'desc' } });
+        }
+        if (sort.price) {
+            const priceField = groupByProduct ? 'priceMin' : 'price';
+            sortArray.push({ [priceField]: { order: sort.price === SortOrder.ASC ? 'asc' : 'desc' } });
+        }
+    }
+    return {
+        query,
+        sort: sortArray,
+        from: skip || 0,
+        size: take || 10,
+    };
+}
+
+function ensureBoolFilterExists(query: { bool: { filter?: any } }) {
+    if (!query.bool.filter) {
+        query.bool.filter = [];
+    }
+}
+
+function createPriceFilters(range: PriceRange, withTax: boolean, groupByProduct: boolean): any[] {
+    const withTaxFix = withTax ? 'WithTax' : '';
+    if (groupByProduct) {
+        return [
+            {
+                range: {
+                    [`price${withTaxFix}Min`]: {
+                        gte: range.min,
+                    },
+                },
+            },
+            {
+                range: {
+                    [`price${withTaxFix}Max`]: {
+                        lte: range.max,
+                    },
+                },
+            },
+        ];
+    } else {
+        return [
+            {
+                range: {
+                    ['price' + withTaxFix]: {
+                        gte: range.min,
+                        lte: range.max,
+                    },
+                },
+            },
+        ];
+    }
+}

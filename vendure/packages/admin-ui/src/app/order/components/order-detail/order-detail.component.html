@@ -1,0 +1,161 @@
+<vdr-action-bar *ngIf="entity$ | async as order">
+    <vdr-ab-left>
+        <div class="clr-row clr-flex-column">
+            <vdr-order-state-label [state]="order.state"></vdr-order-state-label>
+            <div class="date-detail">
+                {{ 'common.updated' | translate }}:
+                <strong>{{ order.updatedAt | date: 'medium' }}</strong>
+            </div>
+        </div>
+    </vdr-ab-left>
+
+    <vdr-ab-right>
+        <vdr-action-bar-items locationId="order-detail"></vdr-action-bar-items>
+        <button
+            class="btn btn-primary"
+            (click)="fulfillOrder()"
+            [disabled]="order.state !== 'PaymentSettled' && order.state !== 'PartiallyFulfilled'"
+        >
+            {{ 'order.fulfill-order' | translate }}
+        </button>
+        <vdr-dropdown>
+            <button class="icon-button" vdrDropdownTrigger>
+                <clr-icon shape="ellipsis-vertical"></clr-icon>
+            </button>
+            <vdr-dropdown-menu vdrPosition="bottom-right">
+                <button
+                    type="button"
+                    class="btn"
+                    vdrDropdownItem
+                    *ngIf="order.state !== 'Cancelled'"
+                    (click)="cancelOrRefund(order)"
+                >
+                    <clr-icon shape="error-standard" class="is-error"></clr-icon>
+                    <ng-container
+                        *ngIf="order.state !== 'PaymentAuthorized' && !order.active; else cancelOnly"
+                    >
+                        {{ 'order.refund-and-cancel-order' | translate }}
+                    </ng-container>
+                    <ng-template #cancelOnly>
+                        {{ 'order.cancel-order' | translate }}
+                    </ng-template>
+                </button>
+            </vdr-dropdown-menu>
+        </vdr-dropdown>
+    </vdr-ab-right>
+</vdr-action-bar>
+
+<div *ngIf="entity$ | async as order">
+    <div class="clr-row">
+        <div class="clr-col-lg-8">
+            <table class="order-lines table">
+                <thead>
+                <tr>
+                    <th></th>
+                    <th>{{ 'order.product-name' | translate }}</th>
+                    <th>{{ 'order.product-sku' | translate }}</th>
+                    <th>{{ 'order.unit-price' | translate }}</th>
+                    <th>{{ 'order.quantity' | translate }}</th>
+                    <th>{{ 'order.total' | translate }}</th>
+                </tr>
+                </thead>
+                <tr
+                    *ngFor="let line of order.lines"
+                    class="order-line"
+                    [class.is-cancelled]="line.quantity === 0"
+                >
+                    <td class="align-middle thumb">
+                        <img [src]="line.featuredAsset.preview + '?preset=tiny'" />
+                    </td>
+                    <td class="align-middle name">{{ line.productVariant.name }}</td>
+                    <td class="align-middle sku">{{ line.productVariant.sku }}</td>
+                    <td class="align-middle unit-price">
+                        {{ line.unitPriceWithTax / 100 | currency: order.currencyCode }}
+                    </td>
+                    <td class="align-middle quantity">
+                        {{ line.quantity }}
+                        <vdr-line-refunds [line]="line"></vdr-line-refunds>
+                        <vdr-line-fulfillment [line]="line" [orderState]="order.state"></vdr-line-fulfillment>
+                    </td>
+                    <td class="align-middle total">
+                        {{ line.totalPrice / 100 | currency: order.currencyCode }}
+                    </td>
+                </tr>
+                <tr class="sub-total">
+                    <td class="left">{{ 'order.sub-total' | translate }}</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td>{{ order.subTotal / 100 | currency: order.currencyCode }}</td>
+                </tr>
+                <tr class="order-ajustment" *ngFor="let adjustment of order.adjustments">
+                    <td colspan="5" class="left">{{ adjustment.description }}</td>
+                    <td>{{ adjustment.amount / 100 | currency: order.currencyCode }}</td>
+                </tr>
+                <tr class="shipping">
+                    <td class="left">{{ 'order.shipping' | translate }}</td>
+                    <td>{{ order.shippingMethod?.description }}</td>
+                    <td colspan="3"></td>
+                    <td>{{ order.shipping / 100 | currency: order.currencyCode }}</td>
+                </tr>
+                <tr class="total">
+                    <td class="left">{{ 'order.total' | translate }}</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td>{{ order.total / 100 | currency: order.currencyCode }}</td>
+                </tr>
+            </table>
+
+            <vdr-order-history
+                [order]="order"
+                [history]="history$ | async"
+                (addNote)="addNote($event)"
+            ></vdr-order-history>
+        </div>
+        <div class="clr-col-lg-4 order-cards">
+            <vdr-order-custom-fields-card [customFieldsConfig]="customFields"
+                                          [customFieldValues]="order.customFields"></vdr-order-custom-fields-card>
+            <div class="card">
+                <div class="card-header">
+                    {{ 'order.customer' | translate }}
+                </div>
+                <div class="card-block">
+                    <div class="card-text">
+                        <vdr-customer-label [customer]="order.customer"></vdr-customer-label>
+                        <h6 *ngIf="getShippingAddressLines(order.shippingAddress).length">
+                            {{ 'order.shipping-address' | translate }}
+                        </h6>
+                        <vdr-formatted-address [address]="order.shippingAddress"></vdr-formatted-address>
+                    </div>
+                </div>
+            </div>
+            <ng-container *ngIf="order.payments && order.payments.length">
+                <vdr-order-payment-detail
+                    *ngFor="let payment of order.payments"
+                    [currencyCode]="order.currencyCode"
+                    [payment]="payment"
+                    (settlePayment)="settlePayment($event)"
+                    (settleRefund)="settleRefund($event)"
+                ></vdr-order-payment-detail>
+            </ng-container>
+            <ng-container *ngIf="order.fulfillments && order.fulfillments.length">
+                <div class="card">
+                    <div class="card-header">
+                        {{ 'order.fulfillment' | translate }}
+                    </div>
+                    <div class="card-block">
+                        <div class="fulfillment-detail" *ngFor="let fulfillment of order.fulfillments">
+                            <vdr-fulfillment-detail
+                                [fulfillmentId]="fulfillment.id"
+                                [order]="order"
+                            ></vdr-fulfillment-detail>
+                        </div>
+                    </div>
+                </div>
+            </ng-container>
+        </div>
+    </div>
+</div>

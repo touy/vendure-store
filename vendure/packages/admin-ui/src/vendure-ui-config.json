@@ -1,0 +1,7 @@
+{
+  "apiHost": "auto",
+  "apiPort": "auto",
+  "adminApiPath": "admin-api",
+  "tokenMethod": "cookie",
+  "authTokenHeaderKey": "vendure-auth-token"
+}

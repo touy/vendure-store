@@ -1,0 +1,14 @@
+type Promotion implements Node {
+    id: ID!
+    createdAt: DateTime!
+    updatedAt: DateTime!
+    name: String!
+    enabled: Boolean!
+    conditions: [ConfigurableOperation!]!
+    actions: [ConfigurableOperation!]!
+}
+
+type PromotionList implements PaginatedList {
+    items: [Promotion!]!
+    totalItems: Int!
+}

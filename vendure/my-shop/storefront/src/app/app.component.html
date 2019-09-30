@@ -1,0 +1,64 @@
+<vsf-layout>
+
+    <vsf-layout-header>
+        <div class="header">
+            <div class="container">
+                <a [routerLink]="['/']" class="logo-link">
+                    <img src="assets/cube-logo-line-icon-nostroke.png" class="logo">
+                    <div class="logo-type d-none d-md-inline-block text-muted">Vendure Storefront</div>
+                </a>
+                <div class="flex-grow-1"></div>
+                <vsf-account-link class="mr-2"></vsf-account-link>
+                <vsf-cart-toggle (toggle)="cartDrawerVisible = !cartDrawerVisible"></vsf-cart-toggle>
+                <vsf-cart-drawer [visible]="cartDrawerVisible" (close)="cartDrawerVisible = false"></vsf-cart-drawer>
+            </div>
+        </div>
+    </vsf-layout-header>
+    <div class="contents">
+        <vsf-collections-menu></vsf-collections-menu>
+        <sf-home-page *ngIf="isHomePage$ | async; else main"></sf-home-page>
+        <ng-template #main>
+            <div class="container" >
+                <router-outlet></router-outlet>
+            </div>
+        </ng-template>
+    </div>
+
+    <vsf-layout-footer>
+        <div class="row text-muted mt-5 mb-5">
+            <div class="col-md-3 text-center text-md-left">
+                <h3>Orders</h3>
+                <ul class="list-unstyled">
+                    <li>Shipping</li>
+                    <li>Track My Order</li>
+                    <li>Terms & Conditions</li>
+                    <li>Returns Policy</li>
+                </ul>
+            </div>
+            <div class="col-md-3 text-center text-md-left">
+                <h3>About</h3>
+                <ul class="list-unstyled">
+                    <li>About Us</li>
+                    <li>Contact Us</li>
+                    <li>Privacy Notice</li>
+                </ul>
+            </div>
+            <div class="col">
+                <div class="social d-flex justify-content-around">
+                    <fa-icon size="2x" [icon]="['fab', 'twitter']"></fa-icon>
+                    <fa-icon size="2x" [icon]="['fab', 'facebook']"></fa-icon>
+                    <fa-icon size="2x" [icon]="['fab', 'instagram']"></fa-icon>
+                    <fa-icon size="2x" [icon]="['fab', 'youtube']"></fa-icon>
+                </div>
+                <div class="mailist mt-5 d-flex justify-content-around">
+                    <div class="lead">Subscribe to our mailing list for exclusive news and offers!</div>
+                    <button type="button" class="btn btn-outline-secondary btn-lg">Subscribe</button>
+                </div>
+            </div>
+        </div>
+        <div class="text-center">
+            <a href="https://github.com/vendure-ecommerce/storefront">@vendure/storefront on GitHub</a>
+        </div>
+    </vsf-layout-footer>
+
+</vsf-layout>

@@ -1,0 +1,41 @@
+@import "variables";
+@import "mixins";
+
+.date-detail {
+    color: $color-grey-500;
+    padding-left: 6px;
+}
+
+.shipping-address {
+    list-style-type: none;
+    line-height: 1.3em;
+}
+
+.order-lines {
+
+    .is-cancelled td {
+        text-decoration: line-through;
+        background-color: $color-grey-200;
+    }
+
+    .sub-total td {
+        border-top: 1px dashed $color-grey-300;
+    }
+
+    .total td {
+        font-weight: bold;
+        border-top: 1px dashed $color-grey-300;
+    }
+}
+
+.order-cards {
+    h6 {
+        margin-top: 6px;
+        color: $color-grey-500;
+    }
+}
+
+.fulfillment-detail:not(:last-of-type) {
+    border-bottom: 1px dashed $color-grey-300;
+    margin-bottom: 12px;
+}

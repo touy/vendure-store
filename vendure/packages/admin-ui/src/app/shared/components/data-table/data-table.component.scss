@@ -1,0 +1,35 @@
+@import "variables";
+
+:host {
+    display: block;
+    max-width: 100%;
+    overflow: auto;
+}
+
+thead th {
+    position: sticky;
+    top: 24px;
+    z-index: 1;
+
+    &.expand {
+        width: 100%;
+    }
+}
+
+.table-footer {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-top: 6px;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 60px;
+    color: $color-grey-400;
+
+    .empty-label {
+        margin-top: 12px;
+        font-size: 22px;
+    }
+}

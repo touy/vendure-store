@@ -1,0 +1,21 @@
+{
+  "name": "my-shop",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "run:server": "ts-node index.ts",
+    "run:worker": "ts-node index-worker.ts",
+    "start": "concurrently yarn:run:*"
+  },
+  "dependencies": {
+    "@vendure/admin-ui-plugin": "0.3.2",
+    "@vendure/asset-server-plugin": "0.3.1",
+    "@vendure/core": "0.3.1",
+    "@vendure/email-plugin": "0.3.2",
+    "pg": "7.12.1"
+  },
+  "devDependencies": {
+    "concurrently": "4.1.2",
+    "ts-node": "8.4.1"
+  }
+}

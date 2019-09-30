@@ -1,0 +1,13 @@
+overwrite: true
+schema: "./schema.graphql"
+documents: "./projects/storefront/src/**/*.graphql.ts"
+generates:
+  ./projects/storefront/src/lib/generated-types.ts:
+    plugins:
+      - add: "// tslint:disable"
+      - "time"
+      - "typescript-common"
+      - "typescript-client"
+    config:
+      namingConvention:
+          enumValues: 'keep'

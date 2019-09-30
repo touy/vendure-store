@@ -1,0 +1,71 @@
+<div class="clr-form-control" *ngIf="compact">
+    <label for="basic" class="clr-control-label">{{ label }}</label>
+    <div class="clr-control-container">
+        <div class="clr-input-wrapper">
+            <ng-container *ngIf="hasCustomControl; else standardControls">
+                <div #customComponentPlaceholder></div>
+            </ng-container>
+            <ng-template #standardControls>
+                <ng-container *ngTemplateOutlet="inputs"></ng-container>
+            </ng-template>
+        </div>
+    </div>
+</div>
+<vdr-form-field [label]="label" [for]="customField.name" *ngIf="!compact">
+    <ng-container *ngIf="hasCustomControl; else standardControls">
+        <div #customComponentPlaceholder></div>
+    </ng-container>
+    <ng-template #standardControls>
+        <ng-container *ngTemplateOutlet="inputs"></ng-container>
+    </ng-template>
+</vdr-form-field>
+<ng-template #inputs>
+    <input
+        *ngIf="isTextInput"
+        type="text"
+        [id]="customField.name"
+        [pattern]="customField.pattern"
+        [formControl]="formGroup.get(customField.name)"
+        [readonly]="readonly"
+    />
+    <select
+        *ngIf="isSelectInput"
+        clrSelect
+        [formControl]="formGroup.get(customField.name)"
+        [disabled]="readonly"
+    >
+        <option *ngFor="let option of stringOptions" [value]="option.value">
+            {{ getLabel(option.value, option.label) }}
+        </option>
+    </select>
+    <input
+        *ngIf="customField.type === 'int' || customField.type === 'float'"
+        type="number"
+        [id]="customField.name"
+        [min]="min"
+        [max]="max"
+        [step]="step"
+        [formControl]="formGroup.get(customField.name)"
+        [readonly]="readonly"
+    />
+    <clr-toggle-wrapper *ngIf="customField.type === 'boolean'">
+        <input
+            type="checkbox"
+            clrToggle
+            [id]="customField.name"
+            [formControl]="formGroup.get(customField.name)"
+            [readonly]="readonly"
+        />
+    </clr-toggle-wrapper>
+    <input
+        *ngIf="customField.type === 'datetime'"
+        type="datetime-local"
+        [min]="min"
+        [max]="max"
+        [step]="step"
+        [id]="customField.name"
+        [value]="formGroup.get(customField.name).value | date: 'yyyy-MM-ddTHH:mm:ss'"
+        (change)="updateDateTime(formGroup.get(customField.name), $event)"
+        [readonly]="readonly"
+    />
+</ng-template>

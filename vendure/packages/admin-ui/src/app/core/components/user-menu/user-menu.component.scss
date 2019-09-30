@@ -1,0 +1,19 @@
+:host {
+    display: flex;
+    align-items: center;
+    margin: 0 0.5rem;
+    height: 2.5rem;
+}
+
+.user-name {
+    color: lightgrey;
+    margin-right: 12px;
+}
+
+.trigger clr-icon {
+    color: white;
+}
+.btn.btn-outline:hover {
+    background-color: #e1f1f62e;
+}
+

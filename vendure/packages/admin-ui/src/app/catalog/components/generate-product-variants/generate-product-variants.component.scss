@@ -1,0 +1,28 @@
+@import "variables";
+
+:host {
+    display: block;
+    margin-bottom: 120px;
+}
+
+.option-groups {
+    display: flex;
+}
+
+.values {
+    flex: 1;
+    margin: 0 6px;
+}
+
+.remove-group {
+    padding-top: 18px;
+}
+
+.variants-preview {
+    tr.disabled {
+        td {
+            background-color: $color-grey-100;
+            color: $color-grey-400;
+        }
+    }
+}

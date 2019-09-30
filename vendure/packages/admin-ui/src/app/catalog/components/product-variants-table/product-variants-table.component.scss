@@ -1,0 +1,22 @@
+@import "variables";
+
+.placeholder {
+    color: $color-grey-300;
+}
+
+input {
+    width: 100%;
+}
+
+.stock, .price {
+    input {
+        max-width: 96px;
+    }
+}
+
+td {
+    transition: background-color 0.2s;
+    &.disabled {
+        background-color: $color-grey-200;
+    }
+}

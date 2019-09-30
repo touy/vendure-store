@@ -1,0 +1,65 @@
+@import "variables";
+
+:host {
+    display: inline-block;
+}
+
+.wrapper {
+    display: flex;
+    border: 1px solid $color-grey-400;
+    border-radius: 3px;
+    margin: 6px;
+    &.with-background {
+        color: transparentize($color-grey-100, 0.2);
+        border-color: transparent;
+    }
+
+    &.warning {
+        border-color: $color-warning-200;
+        .chip-label {
+            color: $color-warning-600;
+            background-color: $color-warning-100;
+        }
+    }
+
+    &.success {
+        border-color: $color-success-200;
+        .chip-label {
+            color: $color-success-600;
+            background-color: $color-success-100;
+        }
+    }
+
+    &.error {
+        border-color: $color-error-200;
+        .chip-label {
+            color: $color-error-600;
+            background-color: $color-error-100;
+        }
+    }
+
+}
+
+.chip-label {
+    padding: 3px 6px;
+    line-height: 1em;
+    border-radius: 3px;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+}
+
+.chip-icon {
+    border-left: 1px solid transparentize($color-grey-100, 0.5);
+    padding: 0 3px;
+    line-height: 1em;
+    display: flex;
+
+    button {
+        cursor: pointer;
+        background: none;
+        margin: 0;
+        padding: 0;
+        border: none;
+    }
+}

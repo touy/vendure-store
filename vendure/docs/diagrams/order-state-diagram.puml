@@ -1,0 +1,65 @@
+@startuml
+!include theme.puml
+title Order State Diagram
+
+state ShopAPI {
+    [*] --> AddingItems: addItemToOrder
+    state AddingItems {
+        AddingItems: Customer adds items to the order
+        AddingItems: Customer details are set
+        AddingItems: Shipping destination is set
+        AddingItems: Shipping method is selected
+    }
+
+    state ArrangingPayment {
+        ArrangingPayment: Payment provider is used to take payment
+    }
+}
+
+state AdminAPI {
+    state PaymentAuthorized {
+        PaymentAuthorized: The payment has been authorized by the
+        PaymentAuthorized: payment provider.
+    }
+
+    state PaymentSettled {
+        PaymentSettled: The payment has been settled with the payment
+        PaymentSettled: provider, i.e. the transaction is complete.
+    }
+
+    state PartiallyFulfilled {
+        PartiallyFulfilled: One or more OrderItems have been dispatched to the Customer
+    }
+
+    state Fulfilled #9d9 {
+        Fulfilled: All OrderItems have been dispatched to the Customer
+    }
+
+
+    state Cancelled #d99 {
+        Cancelled: All OrderItems in the Order have been cancelled
+    }
+    Cancelled --> [*]
+
+    Fulfilled --> [*]
+}
+
+
+AddingItems --> ArrangingPayment: transitionOrderToState
+ArrangingPayment --> AddingItems: transitionOrderToState
+ArrangingPayment --> PaymentAuthorized: addPaymentToOrder
+ArrangingPayment -----> PaymentSettled: addPaymentToOrder
+PaymentAuthorized --> PaymentSettled: settlePayment
+PaymentSettled --> Fulfilled: fulfillOrder
+PaymentSettled --> PartiallyFulfilled: fulfillOrder
+PartiallyFulfilled --> PartiallyFulfilled: fulfillOrder
+PartiallyFulfilled --> Fulfilled: fulfillOrder
+
+PaymentAuthorized --> Cancelled: cancelOrder
+PaymentSettled --> Cancelled: cancelOrder
+PartiallyFulfilled --> Cancelled: cancelOrder
+Fulfilled --> Cancelled: cancelOrder
+
+
+
+@enduml

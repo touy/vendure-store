@@ -1,0 +1,23 @@
+{{ define "main" }}
+<article class="markdown">
+    {{ partial "breadcrumbs" . }}
+    {{- .Content -}}
+    {{ $list := .Sections }}
+    {{ $list = $list | append .Pages }}
+
+    {{ if gt (len $list) 0 }}
+    <h3>Contents:</h3>
+    <ul class="contents-list">
+        {{ range $list.ByParam "title" }}
+        <li>
+            <a href="{{ .RelPermalink }}">{{ .Title }}</a>
+        </li>
+        {{ end}}
+    </ul>
+    {{ end }}
+</article>
+{{ end }}
+
+{{ define "toc" }}
+{{ partial "docs/toc" . }}
+{{ end }}

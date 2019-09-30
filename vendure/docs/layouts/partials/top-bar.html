@@ -1,0 +1,26 @@
+<div class="top-bar {{ if .isLandingPage }}landing-page{{ end }}" >
+    <div class="top-bar-content">
+        <div class="left">
+            <a class="logo" href="/" title="back to landing page">
+                <img src="{{ "logo.png" | relURL }}" />
+                {{ if not .isLandingPage }}<div class="logotype">vendure</div>{{ end }}
+            </a>
+            <div class="version-label">beta</div>
+        </div>
+        <div class="flex-spacer"></div>
+        {{ if .isDocsPage }}
+        <div class="search-input">
+            <button class="search-icon">
+                <img src="{{ "svg/clr-icon-search-light.svg" | relURL }}">
+            </button>
+            <input id="searchInput" placeholder="Search docs">
+        </div>
+        {{ end }}
+        <div class="right">
+            <a href="/docs">Docs</a>
+            <a href="http://demo.vendure.io" target="_blank">Demo</a>
+            <a href="/blog">Blog</a>
+            <a href="https://github.com/vendure-ecommerce/vendure">GitHub</a>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,22 @@
+<table class="table">
+    <tr>
+        <th>{{ 'settings.section' | translate }}</th>
+        <th>{{ 'settings.create' | translate }}</th>
+        <th>{{ 'settings.read' | translate }}</th>
+        <th>{{ 'settings.update' | translate }}</th>
+        <th>{{ 'settings.delete' | translate }}</th>
+    </tr>
+    <tbody>
+        <tr *ngFor="let section of gridData">
+            <td>{{ section.label | translate }}</td>
+            <td *ngFor="let permission of section.permissions">
+                <vdr-select-toggle
+                    size="small"
+                    [disabled]="readonly"
+                    [selected]="permissions[permission]"
+                    (selectedChange)="setPermission(permission, $event)"
+                ></vdr-select-toggle>
+            </td>
+        </tr>
+    </tbody>
+</table>

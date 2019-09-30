@@ -1,0 +1,31 @@
+<nav class="sidenav" [clr-nav-level]="2">
+    <section class="sidenav-content">
+        <ng-container *ngFor="let section of navBuilderService.navMenuConfig$ | async">
+            <section
+                class="nav-group"
+                [attr.data-section-id]="section.id"
+                [class.collapsible]="section.collapsible"
+                *vdrIfPermissions="section.requiresPermission"
+            >
+                <input [id]="section.id" type="checkbox" [checked]="section.collapsedByDefault" />
+                <label [for]="section.id">{{ section.label | translate }}</label>
+                <ul class="nav-list">
+                    <li *ngFor="let item of section.items">
+                        <a
+                            class="nav-link"
+                            [attr.data-item-id]="section.id"
+                            [routerLink]="getRouterLink(item)"
+                            routerLinkActive="active"
+                        >
+                            <clr-icon [attr.shape]="item.icon" size="20"></clr-icon>
+                            {{ item.label | translate }}
+                        </a>
+                    </li>
+                </ul>
+            </section>
+        </ng-container>
+        <section class="nav-group">
+            <vdr-job-list></vdr-job-list>
+        </section>
+    </section>
+</nav>

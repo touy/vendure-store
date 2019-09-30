@@ -1,0 +1,105 @@
+<div
+    cdkDropList
+    class="tree-node"
+    #dropList
+    [cdkDropListData]="collectionTree"
+    [cdkDropListDisabled]="!(hasUpdatePermission$ | async)"
+    (cdkDropListDropped)="drop($event)"
+>
+    <div
+        class="collection"
+        [class.private]="collection.isPrivate"
+        *ngFor="let collection of collectionTree.children; index as i; trackBy: trackByFn"
+        cdkDrag
+        [cdkDragData]="collection"
+    >
+        <div
+            class="collection-detail"
+            [ngClass]="'depth-' + depth"
+            [class.active]="collection.id === activeCollectionId"
+        >
+            <div class="name">
+                <clr-icon shape="folder"></clr-icon>
+                {{ collection.name }}
+            </div>
+            <div class="flex-spacer"></div>
+            <vdr-chip *ngIf="collection.isPrivate">{{ 'catalog.private' | translate }}</vdr-chip>
+            <a
+                class="btn btn-link btn-sm"
+                [routerLink]="['./', { contents: collection.id }]"
+                queryParamsHandling="preserve"
+            >
+                <clr-icon shape="view-list"></clr-icon>
+                {{ 'catalog.view-contents' | translate }}
+            </a>
+            <a class="btn btn-link btn-sm" [routerLink]="['/catalog/collections/', collection.id]">
+                <clr-icon shape="edit"></clr-icon>
+                {{ 'common.edit' | translate }}
+            </a>
+            <div class="drag-handle" cdkDragHandle *vdrIfPermissions="'UpdateCatalog'">
+                <clr-icon shape="drag-handle" size="24"></clr-icon>
+            </div>
+            <vdr-dropdown>
+                <button class="icon-button" vdrDropdownTrigger>
+                    <clr-icon shape="ellipsis-vertical"></clr-icon>
+                </button>
+                <vdr-dropdown-menu vdrPosition="bottom-right">
+                    <a
+                        class="dropdown-item"
+                        [routerLink]="['./', 'create', { parentId: collection.id }]"
+                        *vdrIfPermissions="'CreateCatalog'"
+                    >
+                        <clr-icon shape="plus"></clr-icon>
+                        {{ 'catalog.create-new-collection' | translate }}
+                    </a>
+                    <div class="dropdown-divider"></div>
+                    <button
+                        type="button"
+                        vdrDropdownItem
+                        [disabled]="i === 0 || !(hasUpdatePermission$ | async)"
+                        (click)="moveUp(collection, i)"
+                    >
+                        <clr-icon shape="caret up"></clr-icon>
+                        {{ 'catalog.move-up' | translate }}
+                    </button>
+                    <button
+                        type="button"
+                        vdrDropdownItem
+                        [disabled]="
+                            i === collectionTree.children.length - 1 || !(hasUpdatePermission$ | async)
+                        "
+                        (click)="moveDown(collection, i)"
+                    >
+                        <clr-icon shape="caret down"></clr-icon>
+                        {{ 'catalog.move-down' | translate }}
+                    </button>
+                    <h4 class="dropdown-header">{{ 'catalog.move-to' | translate }}</h4>
+                    <button
+                        type="button"
+                        vdrDropdownItem
+                        *ngFor="let item of getMoveListItems(collection)"
+                        (click)="move(collection, item.id)"
+                        [disabled]="!(hasUpdatePermission$ | async)"
+                    >
+                        <clr-icon shape="child-arrow"></clr-icon>
+                        {{ item.path }}
+                    </button>
+                    <div class="dropdown-divider"></div>
+                    <button
+                        class="button"
+                        vdrDropdownItem
+                        (click)="delete(collection.id)"
+                        [disabled]="!(hasDeletePermission$ | async)"
+                    >
+                        <clr-icon shape="trash" class="is-danger"></clr-icon>
+                        {{ 'common.delete' | translate }}
+                    </button>
+                </vdr-dropdown-menu>
+            </vdr-dropdown>
+        </div>
+        <vdr-collection-tree-node
+            [collectionTree]="collection"
+            [activeCollectionId]="activeCollectionId"
+        ></vdr-collection-tree-node>
+    </div>
+</div>

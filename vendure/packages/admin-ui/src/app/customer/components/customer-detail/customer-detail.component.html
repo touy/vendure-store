@@ -1,0 +1,118 @@
+<vdr-action-bar>
+    <vdr-ab-left>
+        <vdr-customer-status-label [customer]="entity$ | async"></vdr-customer-status-label>
+    </vdr-ab-left>
+
+    <vdr-ab-right>
+        <vdr-action-bar-items locationId="customer-detail"></vdr-action-bar-items>
+        <button
+            class="btn btn-primary"
+            *ngIf="(isNew$ | async); else updateButton"
+            (click)="create()"
+            [disabled]="!(addressDefaultsUpdated || (detailForm.valid && detailForm.dirty))"
+        >
+            {{ 'common.create' | translate }}
+        </button>
+        <ng-template #updateButton>
+            <button
+                class="btn btn-primary"
+                (click)="save()"
+                [disabled]="!(addressDefaultsUpdated || (detailForm.valid && detailForm.dirty))"
+            >
+                {{ 'common.update' | translate }}
+            </button>
+        </ng-template>
+    </vdr-ab-right>
+</vdr-action-bar>
+
+<form class="form" [formGroup]="detailForm.get('customer')">
+    <vdr-form-field [label]="'customer.title' | translate" for="title" [readOnlyToggle]="!(isNew$ | async)">
+        <input id="title" type="text" formControlName="title" />
+    </vdr-form-field>
+    <vdr-form-field
+        [label]="'customer.first-name' | translate"
+        for="firstName"
+        [readOnlyToggle]="!(isNew$ | async)"
+    >
+        <input id="firstName" type="text" formControlName="firstName" />
+    </vdr-form-field>
+    <vdr-form-field
+        [label]="'customer.last-name' | translate"
+        for="lastName"
+        [readOnlyToggle]="!(isNew$ | async)"
+    >
+        <input id="lastName" type="text" formControlName="lastName" />
+    </vdr-form-field>
+    <vdr-form-field
+        [label]="'customer.email-address' | translate"
+        for="emailAddress"
+        [readOnlyToggle]="!(isNew$ | async)"
+    >
+        <input id="emailAddress" type="text" formControlName="emailAddress" />
+    </vdr-form-field>
+    <vdr-form-field [label]="'customer.password' | translate" for="password" *ngIf="(isNew$ | async)">
+        <input id="password" type="password" formControlName="password" />
+    </vdr-form-field>
+
+    <section formGroupName="customFields" *ngIf="customFields.length">
+        <label>{{ 'common.custom-fields' | translate }}</label>
+        <ng-container *ngFor="let customField of customFields">
+            <vdr-custom-field-control
+                *ngIf="customFieldIsSet(customField.name)"
+                entityName="Customer"
+                [customFieldsFormGroup]="detailForm.get('customFields')"
+                [customField]="customField"
+            ></vdr-custom-field-control>
+        </ng-container>
+    </section>
+</form>
+
+<div class="clr-row" *ngIf="!(isNew$ | async)">
+    <div class="clr-col-md-4">
+        <h3>{{ 'customer.addresses' | translate }}</h3>
+        <vdr-address-card
+            *ngFor="let addressForm of getAddressFormControls()"
+            [availableCountries]="availableCountries$ | async"
+            [isDefaultBilling]="defaultBillingAddressId === addressForm.value.id"
+            [isDefaultShipping]="defaultShippingAddressId === addressForm.value.id"
+            [addressForm]="addressForm"
+            (setAsDefaultBilling)="setDefaultBillingAddressId($event)"
+            (setAsDefaultShipping)="setDefaultShippingAddressId($event)"
+        ></vdr-address-card>
+        <button class="btn btn-secondary" (click)="addAddress()">
+            <clr-icon shape="plus"></clr-icon>
+            {{ 'customer.create-new-address' | translate }}
+        </button>
+    </div>
+    <div class="clr-col-md-8">
+        <h3>{{ 'customer.orders' | translate }}</h3>
+        <vdr-data-table
+            [items]="orders$ | async"
+            [itemsPerPage]="ordersPerPage"
+            [totalItems]="ordersCount$ | async"
+            [currentPage]="currentOrdersPage"
+            [emptyStateLabel]="'customer.no-orders-placed' | translate"
+            (itemsPerPageChange)="setOrderItemsPerPage($event)"
+            (pageChange)="setOrderCurrentPage($event)"
+        >
+            <vdr-dt-column>{{ 'common.code' | translate }}</vdr-dt-column>
+            <vdr-dt-column>{{ 'order.state' | translate }}</vdr-dt-column>
+            <vdr-dt-column>{{ 'order.total' | translate }}</vdr-dt-column>
+            <vdr-dt-column>{{ 'common.updated-at' | translate }}</vdr-dt-column>
+            <vdr-dt-column></vdr-dt-column>
+            <ng-template let-order="item">
+                <td class="left">{{ order.code }}</td>
+                <td class="left">{{ order.state }}</td>
+                <td class="left">{{ order.total / 100 | currency: order.currencyCode }}</td>
+                <td class="left">{{ order.updatedAt | date: 'medium' }}</td>
+                <td class="right">
+                    <vdr-table-row-action
+                        iconShape="shopping-cart"
+                        [label]="'common.open' | translate"
+                        [linkTo]="['/orders/', order.id]"
+                    ></vdr-table-row-action>
+                </td>
+            </ng-template>
+        </vdr-data-table>
+    </div>
+</div>

@@ -1,0 +1,26 @@
+@import "variables";
+
+:host {
+    ::ng-deep {
+        trix-toolbar {
+            top: 24px;
+        }
+    }
+}
+
+vdr-action-bar clr-toggle-wrapper {
+    margin-top: 10px;
+}
+
+.group-name {
+    padding-right: 6px;
+}
+
+.view-mode {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.edit-variants-btn {
+    margin-top: 0;
+}

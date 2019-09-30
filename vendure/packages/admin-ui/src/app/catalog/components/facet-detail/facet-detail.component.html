@@ -1,0 +1,165 @@
+<vdr-action-bar>
+    <vdr-ab-left>
+        <vdr-language-selector
+            [disabled]="isNew$ | async"
+            [availableLanguageCodes]="availableLanguages$ | async"
+            [currentLanguageCode]="languageCode$ | async"
+            (languageCodeChange)="setLanguage($event)"
+        ></vdr-language-selector>
+    </vdr-ab-left>
+
+    <vdr-ab-right>
+        <vdr-action-bar-items locationId="facet-detail"></vdr-action-bar-items>
+        <button
+            class="btn btn-primary"
+            *ngIf="isNew$ | async; else updateButton"
+            (click)="create()"
+            [disabled]="detailForm.invalid || detailForm.pristine"
+        >
+            {{ 'common.create' | translate }}
+        </button>
+        <ng-template #updateButton>
+            <button
+                *vdrIfPermissions="'UpdateCatalog'"
+                class="btn btn-primary"
+                (click)="save()"
+                [disabled]="detailForm.invalid || detailForm.pristine"
+            >
+                {{ 'common.update' | translate }}
+            </button>
+        </ng-template>
+    </vdr-ab-right>
+</vdr-action-bar>
+
+<form class="form" [formGroup]="detailForm" *ngIf="entity$ | async as facet">
+    <section class="form-block" formGroupName="facet">
+        <vdr-form-field [label]="'catalog.visibility' | translate" for="visibility">
+            <clr-toggle-wrapper>
+                <input
+                    type="checkbox"
+                    clrToggle
+                    [vdrDisabled]="!('UpdateCatalog' | hasPermission)"
+                    formControlName="visible"
+                    id="visibility"
+                />
+                <label class="visible-toggle">
+                    {{
+                        detailForm.value.facet.visible
+                            ? ('catalog.public' | translate)
+                            : ('catalog.private' | translate)
+                    }}
+                </label>
+            </clr-toggle-wrapper>
+        </vdr-form-field>
+        <vdr-form-field [label]="'common.name' | translate" for="name">
+            <input
+                id="name"
+                type="text"
+                formControlName="name"
+                [readonly]="!('UpdateCatalog' | hasPermission)"
+                (input)="updateCode(facet.code, $event.target.value)"
+            />
+        </vdr-form-field>
+        <vdr-form-field
+            [label]="'common.code' | translate"
+            for="code"
+            [readOnlyToggle]="'UpdateCatalog' | hasPermission"
+        >
+            <input
+                id="code"
+                type="text"
+                [readonly]="!('UpdateCatalog' | hasPermission)"
+                formControlName="code"
+            />
+        </vdr-form-field>
+
+        <section formGroupName="customFields" *ngIf="customFields.length">
+            <label>{{ 'common.custom-fields' | translate }}</label>
+            <ng-container *ngFor="let customField of customFields">
+                <vdr-custom-field-control
+                    *ngIf="customFieldIsSet(customField.name)"
+                    entityName="Facet"
+                    [customFieldsFormGroup]="detailForm.get(['facet', 'customFields'])"
+                    [customField]="customField"
+                ></vdr-custom-field-control>
+            </ng-container>
+        </section>
+    </section>
+
+    <section class="form-block" *ngIf="!(isNew$ | async)">
+        <label>{{ 'catalog.facet-values' | translate }}</label>
+
+        <table class="facet-values-list table" formArrayName="values" *ngIf="0 < getValuesFormArray().length">
+            <thead>
+                <tr>
+                    <th>{{ 'common.name' | translate }}</th>
+                    <th>{{ 'common.code' | translate }}</th>
+                    <ng-container *ngFor="let customField of customValueFields">
+                        <th>{{ customField.name }}</th>
+                    </ng-container>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr
+                    class="facet-value"
+                    *ngFor="let value of getValuesFormArray().controls; let i = index"
+                    [formGroupName]="i"
+                >
+                    <td>
+                        <input
+                            type="text"
+                            formControlName="name"
+                            [readonly]="!('UpdateCatalog' | hasPermission)"
+                            (input)="updateValueCode(facet.values[i]?.code, $event.target.value, i)"
+                        />
+                    </td>
+                    <td><input type="text" formControlName="code" readonly /></td>
+                    <ng-container *ngFor="let customField of customValueFields">
+                        <td>
+                            <vdr-custom-field-control
+                                *ngIf="customValueFieldIsSet(i, customField.name)"
+                                entityName="FacetValue"
+                                [showLabel]="false"
+                                [customFieldsFormGroup]="detailForm.get(['values', i, 'customFields'])"
+                                [customField]="customField"
+                            ></vdr-custom-field-control>
+                        </td>
+                    </ng-container>
+                    <td>
+                        <vdr-dropdown>
+                            <button type="button" class="btn btn-link btn-sm" vdrDropdownTrigger>
+                                {{ 'common.actions' | translate }}
+                                <clr-icon shape="caret down"></clr-icon>
+                            </button>
+                            <vdr-dropdown-menu vdrPosition="bottom-right">
+                                <button
+                                    type="button"
+                                    class="delete-button"
+                                    (click)="deleteFacetValue(facet.values[i].id)"
+                                    [disabled]="!('UpdateCatalog' | hasPermission)"
+                                    vdrDropdownItem
+                                >
+                                    <clr-icon shape="trash" class="is-danger"></clr-icon>
+                                    {{ 'common.delete' | translate }}
+                                </button>
+                            </vdr-dropdown-menu>
+                        </vdr-dropdown>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div>
+            <button
+                type="button"
+                class="btn btn-secondary"
+                *vdrIfPermissions="'CreateCatalog'"
+                (click)="addFacetValue()"
+            >
+                <clr-icon shape="add"></clr-icon>
+                {{ 'catalog.add-facet-value' | translate }}
+            </button>
+        </div>
+    </section>
+</form>

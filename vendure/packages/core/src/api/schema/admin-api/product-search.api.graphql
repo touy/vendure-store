@@ -1,0 +1,11 @@
+type Query {
+    search(input: SearchInput!): SearchResponse!
+}
+
+type Mutation {
+    reindex: JobInfo!
+}
+
+type SearchResult {
+    enabled: Boolean!
+}

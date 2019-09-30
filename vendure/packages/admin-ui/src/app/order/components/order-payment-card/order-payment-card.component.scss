@@ -1,0 +1,12 @@
+@import "variables";
+
+.payment-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.refund-icon {
+    margin-right: 6px;
+    color: $color-grey-400;
+}

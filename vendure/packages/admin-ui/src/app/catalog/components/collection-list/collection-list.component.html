@@ -1,0 +1,45 @@
+<vdr-action-bar>
+    <vdr-ab-right>
+        <vdr-action-bar-items locationId="collection-list"></vdr-action-bar-items>
+        <a class="btn btn-primary" *vdrIfPermissions="'CreateCatalog'" [routerLink]="['./create']">
+            <clr-icon shape="plus"></clr-icon>
+            {{ 'catalog.create-new-collection' | translate }}
+        </a>
+    </vdr-ab-right>
+</vdr-action-bar>
+<div class="collection-wrapper">
+    <vdr-collection-tree
+        [collections]="items$ | async | paginate: (paginationConfig$ | async) || {}"
+        [activeCollectionId]="activeCollectionId$ | async"
+        (rearrange)="onRearrange($event)"
+        (deleteCollection)="deleteCollection($event)"
+    ></vdr-collection-tree>
+
+    <div class="collection-contents" [class.expanded]="activeCollectionId$ | async">
+        <vdr-collection-contents [collectionId]="activeCollectionId$ | async">
+            <ng-template let-count>
+                <div class="collection-title">
+                    {{ activeCollectionTitle$ | async }} ({{
+                        'common.results-count' | translate: { count: count }
+                    }})
+                </div>
+                <button type="button" class="close-button" (click)="closeContents()">
+                    <clr-icon shape="close"></clr-icon>
+                </button>
+            </ng-template>
+        </vdr-collection-contents>
+    </div>
+</div>
+<div class="paging-controls">
+    <vdr-items-per-page-controls
+        [itemsPerPage]="itemsPerPage$ | async"
+        (itemsPerPageChange)="setItemsPerPage($event)"
+    ></vdr-items-per-page-controls>
+    <vdr-pagination-controls
+        *ngIf="totalItems$ | async"
+        [currentPage]="currentPage$ | async"
+        [itemsPerPage]="itemsPerPage$ | async"
+        [totalItems]="totalItems$ | async"
+        (pageChange)="setPageNumber($event)"
+    ></vdr-pagination-controls>
+</div>

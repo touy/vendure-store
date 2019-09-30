@@ -1,0 +1,31 @@
+{
+  "compileOnSave": false,
+  "compilerOptions": {
+    "baseUrl": "./",
+    "importHelpers": true,
+    "outDir": "./dist/out-tsc",
+    "sourceMap": true,
+    "declaration": false,
+    "moduleResolution": "node",
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "strict": true,
+    "noImplicitAny": false,
+    "strictPropertyInitialization": false,
+    "target": "es5",
+    "skipLibCheck": true,
+    "typeRoots": [
+      "node_modules/@types",
+      "./typings"
+    ],
+    "lib": [
+      "es2017",
+      "dom",
+      "esnext.asynciterable"
+    ],
+    "paths": {
+      "shared/*": ["../common/lib/*"],
+      "@vendure/admin-ui/src/*": ["./src/*"]
+    }
+  }
+}

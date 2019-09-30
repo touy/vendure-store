@@ -1,0 +1,131 @@
+<vdr-action-bar>
+    <vdr-ab-left></vdr-ab-left>
+
+    <vdr-ab-right>
+        <vdr-action-bar-items locationId="shipping-method-detail"></vdr-action-bar-items>
+        <button
+            class="btn btn-primary"
+            *ngIf="isNew$ | async; else updateButton"
+            (click)="create()"
+            [disabled]="detailForm.pristine || detailForm.invalid"
+        >
+            {{ 'common.create' | translate }}
+        </button>
+        <ng-template #updateButton>
+            <button
+                class="btn btn-primary"
+                (click)="save()"
+                *vdrIfPermissions="'UpdateSettings'"
+                [disabled]="detailForm.pristine || detailForm.invalid"
+            >
+                {{ 'common.update' | translate }}
+            </button>
+        </ng-template>
+    </vdr-ab-right>
+</vdr-action-bar>
+
+<form class="form" [formGroup]="detailForm" *ngIf="entity$ | async as shippingMethod">
+    <vdr-form-field [label]="'common.description' | translate" for="description">
+        <input
+            id="description"
+            type="text"
+            formControlName="description"
+            [readonly]="!('UpdateSettings' | hasPermission)"
+            (input)="updateCode(shippingMethod.code, $event.target.value)"
+        />
+    </vdr-form-field>
+    <vdr-form-field [label]="'common.code' | translate" for="code" [readOnlyToggle]="'UpdateSettings' | hasPermission">
+        <input id="code" type="text" formControlName="code" [readonly]="!('UpdateSettings' | hasPermission)" />
+    </vdr-form-field>
+
+    <div class="clr-row">
+        <div class="clr-col">
+            <label class="clr-control-label">{{ 'settings.shipping-eligibility-checker' | translate }}</label>
+            <vdr-configurable-input
+                *ngIf="selectedChecker"
+                [operation]="selectedChecker"
+                [operationDefinition]="selectedCheckerDefinition"
+                [readonly]="!('UpdateSettings' | hasPermission)"
+                [activeChannel]="activeChannel$ | async"
+                (remove)="selectedChecker = null"
+                formControlName="checker"
+            ></vdr-configurable-input>
+            <div *ngIf="!selectedChecker">
+                <vdr-dropdown>
+                    <button class="btn btn-outline" vdrDropdownTrigger>
+                        <clr-icon shape="plus"></clr-icon>
+                        {{ 'common.select' | translate }}
+                    </button>
+                    <vdr-dropdown-menu vdrPosition="bottom-left">
+                        <button
+                            *ngFor="let checker of checkers"
+                            type="button"
+                            vdrDropdownItem
+                            (click)="selectChecker(checker)"
+                        >
+                            {{ checker.description }}
+                        </button>
+                    </vdr-dropdown-menu>
+                </vdr-dropdown>
+            </div>
+        </div>
+        <div class="clr-col">
+            <label class="clr-control-label">{{ 'settings.shipping-calculator' | translate }}</label>
+            <vdr-configurable-input
+                *ngIf="selectedCalculator"
+                [operation]="selectedCalculator"
+                [operationDefinition]="selectedCalculatorDefinition"
+                [readonly]="!('UpdateSettings' | hasPermission)"
+                [activeChannel]="activeChannel$ | async"
+                (remove)="selectedCalculator = null"
+                formControlName="calculator"
+            ></vdr-configurable-input>
+            <div *ngIf="!selectedCalculator">
+                <vdr-dropdown>
+                    <button class="btn btn-outline" vdrDropdownTrigger>
+                        <clr-icon shape="plus"></clr-icon>
+                        {{ 'common.select' | translate }}
+                    </button>
+                    <vdr-dropdown-menu vdrPosition="bottom-left">
+                        <button
+                            *ngFor="let calculator of calculators"
+                            type="button"
+                            vdrDropdownItem
+                            (click)="selectCalculator(calculator)"
+                        >
+                            {{ calculator.description }}
+                        </button>
+                    </vdr-dropdown-menu>
+                </vdr-dropdown>
+            </div>
+        </div>
+    </div>
+</form>
+<div class="testing-tool">
+    <clr-accordion>
+        <clr-accordion-panel>
+            <clr-accordion-title>{{ 'settings.test-shipping-method' | translate }}</clr-accordion-title>
+            <clr-accordion-content *clrIfExpanded>
+                <div class="clr-row">
+                    <div class="clr-col">
+                        <vdr-test-order-builder
+                            (orderLinesChange)="setTestOrderLines($event)"
+                        ></vdr-test-order-builder>
+                    </div>
+                    <div class="clr-col">
+                        <vdr-test-address-form
+                            (addressChange)="setTestAddress($event)"
+                        ></vdr-test-address-form>
+                        <vdr-shipping-method-test-result
+                            [currencyCode]="(activeChannel$ | async)?.currencyCode"
+                            [okToRun]="allTestDataPresent() && testDataUpdated && detailForm.valid"
+                            [testDataUpdated]="testDataUpdated"
+                            [testResult]="testResult$ | async"
+                            (runTest)="runTest()"
+                        ></vdr-shipping-method-test-result>
+                    </div>
+                </div>
+            </clr-accordion-content>
+        </clr-accordion-panel>
+    </clr-accordion>
+</div>

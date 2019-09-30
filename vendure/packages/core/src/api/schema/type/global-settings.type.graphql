@@ -1,0 +1,11 @@
+type GlobalSettings {
+    id: ID!
+    createdAt: DateTime!
+    updatedAt: DateTime!
+    availableLanguages: [LanguageCode!]!
+    trackInventory: Boolean!
+    serverConfig: ServerConfig!
+}
+
+# Programatically extended by the addGraphQLCustomFields function
+type ServerConfig
