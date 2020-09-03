@@ -59,7 +59,7 @@
     "@types/node": "~10.12.24",
     "codelyzer": "~5.1.0",
     "concurrently": "^4.1.0",
-    "graphql-code-generator": "0.18.0",
+    "graphql-code-generator": "0.18.2",
     "graphql-codegen-add": "0.18.0",
     "graphql-codegen-time": "0.18.0",
     "graphql-codegen-typescript-client": "0.18.0",
