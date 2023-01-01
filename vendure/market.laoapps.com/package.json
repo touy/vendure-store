@@ -8,9 +8,9 @@
     "start": "concurrently yarn:run:*"
   },
   "dependencies": {
-    "@vendure/admin-ui-plugin": "0.3.2",
+    "@vendure/admin-ui-plugin": "1.9.1",
     "@vendure/asset-server-plugin": "0.3.1",
-    "@vendure/core": "0.3.1",
+    "@vendure/core": "1.9.1",
     "@vendure/email-plugin": "0.3.2",
     "@vendure/storefront": "^0.1.1",
     "mysql": "2.17.1"
